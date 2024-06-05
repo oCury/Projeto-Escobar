@@ -1,32 +1,32 @@
 <?php
 session_start();
-include 'includes/config.php';
+if (isset($_SESSION['loggedin'])) {
+    header("Location: admin/dashboard.php");
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    include 'includes/config.php';
+
     $email = $_POST['email'];
     $senha = $_POST['senha'];
 
-    $sql = "SELECT * FROM usuarios WHERE email='$email'";
+    $sql = "SELECT * FROM usuarios WHERE email = '$email'";
     $result = $conn->query($sql);
 
-    if ($result->num_rows == 1) {
-        $user = $result->fetch_assoc();
-        if (password_verify($senha, $user['senha'])) {
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        if (password_verify($senha, $row['senha'])) {
             $_SESSION['loggedin'] = true;
-            $_SESSION['nome'] = $user['nome'];
-            $_SESSION['permissao'] = $user['permissao'];
-
-            if ($user['permissao'] == 'admin') {
-                header("Location: admin/dashboard.php");
-            } else {
-                header("Location: user/dashboard.php");
-            }
+            $_SESSION['nome'] = $row['nome'];
+            $_SESSION['permissao'] = $row['permissao'];
+            header("Location: admin/dashboard.php");
             exit;
         } else {
-            echo "Senha incorreta!";
+            $error = "Senha incorreta!";
         }
     } else {
-        echo "Usuário não encontrado!";
+        $error = "Usuário não encontrado!";
     }
 }
 ?>
@@ -35,14 +35,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <h2>Login</h2>
+    <title>Login</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <form method="POST" action="">
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="senha" placeholder="Senha" required>
-        <button type="submit">Login</button>
-    </form>
+    <div class="login-container">
+        <?php if (isset($_GET['logout']) && $_GET['logout'] == 'success') { ?>
+            <script>alert('Logout realizado com sucesso!');</script>
+        <?php } ?>
+        <form method="POST" action="">
+            <h2>Login</h2>
+            <?php if (isset($error)) { echo "<p style='color: red;'>$error</p>"; } ?>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="senha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
 </body>
 </html>

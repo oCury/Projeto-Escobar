@@ -24,6 +24,7 @@ if (!isset($_SESSION['loggedin'])) {
             <li><a href="clientes.php">Clientes</a></li>
             <li><a href="pedidos.php">Pedidos</a></li>
             <li><a href="usuarios.php">Usuários</a></li>
+            <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
     <div class="content">
